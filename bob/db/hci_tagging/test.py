@@ -39,6 +39,25 @@ class HCITaggingTest(unittest.TestCase):
     self.assertEqual(len(self.db.objects()), 3490)
 
 
+  @db_available
+  def test02_can_read_bdf(self):
+
+    from .models import bdf_load_signal
+
+    for obj in self.db.objects():
+
+      path = obj.make_path(DATABASE_LOCATION, '.bdf')
+      self.assertTrue(os.path.exists(path))
+
+      signal, freq = bdf_load_signal(path)
+
+      time = len(signal)/freq
+
+      # correlation between video data and physiological signal
+      if abs(time-obj.duration) > 2:
+        print('Physiological signal (%d seconds) is very different in size from estimated video duration (%d seconds) on sample `%s/%s\'' % (time, obj.duration, obj.basedir, obj.stem))
+
+
 class CmdLineTest(unittest.TestCase):
   """Makes sure our command-line is working properly."""
 
