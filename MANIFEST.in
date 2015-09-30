@@ -1,0 +1,1 @@
+include LICENSE README.rst bootstrap-buildout.py buildout.cfg version.txt
