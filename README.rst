@@ -8,7 +8,8 @@
 
 This package contains an interface for the `Mahnob HCI-Tagging dataset`_
 interface. It is presently used to benchmark and test Remote
-Photo-Plethysmography algorithms.
+Photo-Plethysmography algorithms. This package only uses the colored videos
+(from Camera 1, in AVI format) and the biological signals saved in BDF_ format.
 
 
 Installation
@@ -22,5 +23,8 @@ Please make sure that you have read the `Dependencies
 <https://github.com/idiap/bob/wiki/Dependencies>`_ for your operating system.
 
 
+.. Your references go here
+
 .. _bob: https://www.idiap.ch/software/bob
-.. _manhob hci-tagging dataset: http://mahnob-db.eu/hci-tagging/
+.. _mahnob hci-tagging dataset: http://mahnob-db.eu/hci-tagging/
+.. _bdf: http://www.biosemi.com/faq/file_format.htm
