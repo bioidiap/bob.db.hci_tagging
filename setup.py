@@ -39,6 +39,8 @@ setup(
     install_requires=[
       'setuptools',
       'bob.db.base',
+      'bob.io.video',
+      'python-edf',
       ],
 
     classifiers=[

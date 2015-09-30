@@ -11,6 +11,21 @@ interface. It is presently used to benchmark and test Remote
 Photo-Plethysmography algorithms. This package only uses the colored videos
 (from Camera 1, in AVI format) and the biological signals saved in BDF_ format.
 
+If you decide to use this package, please consider citing `Bob`_, as a software
+development environment and the authors of the dataset::
+
+  @article{soleymani-2012,
+    author={Soleymani, M. and Lichtenauer, J. and Pun, T. and Pantic, M.},
+    journal={Affective Computing, IEEE Transactions on},
+    title={A Multimodal Database for Affect Recognition and Implicit Tagging},
+    year={2012},
+    volume={3},
+    number={1},
+    pages={42-55},
+    doi={10.1109/T-AFFC.2011.25},
+    month=Jan,
+    }
+
 
 Installation
 ------------
