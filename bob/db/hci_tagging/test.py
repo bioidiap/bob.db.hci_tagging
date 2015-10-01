@@ -44,18 +44,23 @@ class HCITaggingTest(unittest.TestCase):
 
     from .models import bdf_load_signal
 
-    for obj in self.db.objects():
+    for obj in self.db.objects()[:10]:
 
       path = obj.make_path(DATABASE_LOCATION, '.bdf')
       self.assertTrue(os.path.exists(path))
 
       signal, freq = bdf_load_signal(path)
 
+      assert signal.size
+      assert freq
+
+      '''
       time = len(signal)/freq
 
       # correlation between video data and physiological signal
       if abs(time-obj.duration) > 2:
         print('Physiological signal (%d seconds) is very different in size from estimated video duration (%d seconds) on sample `%s/%s\'' % (time, obj.duration, obj.basedir, obj.stem))
+      '''
 
 
 class CmdLineTest(unittest.TestCase):
