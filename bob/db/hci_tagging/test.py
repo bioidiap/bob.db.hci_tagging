@@ -10,7 +10,8 @@ import os, sys
 import unittest
 from . import Database
 
-DATABASE_LOCATION = '/idiap/resource/database/HCI_Tagging'
+from .driver import DATABASE_LOCATION
+
 
 def db_available(test):
   """Decorator for detecting if we're running the test at Idiap"""
@@ -95,6 +96,21 @@ class CmdLineTest(unittest.TestCase):
     args = [
             'hci_tagging',
             'checkfiles',
+            '--self-test',
+            '--directory=%s' % DATABASE_LOCATION,
+            ]
+
+    self.assertEqual(main(args), 0)
+
+
+  @db_available
+  def test03_can_create_meta(self):
+
+    from bob.db.base.script.dbmanage import main
+
+    args = [
+            'hci_tagging',
+            'mkmeta',
             '--self-test',
             '--directory=%s' % DATABASE_LOCATION,
             ]

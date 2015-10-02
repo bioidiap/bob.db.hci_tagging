@@ -41,6 +41,8 @@ setup(
       'bob.db.base',
       'bob.io.video',
       'python-edf',
+      'bob.ip.facedetect',
+      'mne',
       ],
 
     classifiers=[

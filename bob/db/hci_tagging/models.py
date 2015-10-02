@@ -4,9 +4,12 @@
 # Wed 30 Sep 2015 12:13:47 CEST
 
 import os
+import logging
+
 import numpy
 import bob.db.base
 import bob.io.base
+import bob.ip.facedetect
 
 
 def bdf_load_signal(fn, name='EXG3', start=None, end=None):
@@ -191,6 +194,55 @@ class File(object):
     return bob.io.video.reader(path)
 
 
+  def run_face_detector(self, directory, max_frames=0):
+    """Runs bob.ip.facedetect stock detector on the whole video.
+
+    Parameters:
+
+      directory
+        A directory name that leads to the location the database is installed
+        on the local disk
+
+      max_frames (int): If set, delimits the maximum number of frames to treat
+        from the associated video file.
+
+    Returns:
+
+      dict: A dictionary containing the detected face bounding boxes and
+        quality information.
+    """
+
+    detections = {}
+    data = self.load_video(directory)
+    if max_frames: data = data[:max_frames]
+    for k, frame in enumerate(data):
+      bb, quality = bob.ip.facedetect.detect_single_face(frame)
+      detections[k] = {'boundingbox': bb, 'quality': quality}
+    return detections
+
+
+  def estimate_heartrate_in_bpm(self, directory):
+    """Estimates the person's heart rate using the ECG sensor data
+
+    Keyword parameters:
+
+      directory
+        A directory name that leads to the location the database is installed
+        on the local disk
+
+    """
+
+    from .utils import estimate_average_heartrate, chooser
+
+
+    estimates = []
+    for channel in ('EXG1', 'EXG2', 'EXG3'):
+      signal, freq = bdf_load_signal(self.make_path(directory), channel)
+      avg_hr, peaks = estimate_average_heartrate(signal, freq)
+      estimates.append(avg_hr)
+    return chooser(estimates)
+
+
   def save(self, data, directory=None, extension='.hdf5'):
     """Saves the input data at the specified location and using the given
     extension.
@@ -210,5 +262,6 @@ class File(object):
     """
 
     path = self.make_path(directory, extension)
-    bob.db.base.utils.makedirs_safe(os.path.dirname(path))
+    if not os.path.exists(os.path.dirname(path)):
+      os.makedirs(os.path.dirname(path))
     bob.io.base.save(data, path)

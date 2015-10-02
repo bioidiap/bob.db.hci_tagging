@@ -8,7 +8,15 @@
 
 import os
 import sys
+import pkg_resources
+
+import numpy
+
+import bob.io.base
+import bob.db.base
 from bob.db.base.driver import Interface as BaseInterface
+
+DATABASE_LOCATION = '/idiap/resource/database/HCI_Tagging'
 
 
 # Driver API
@@ -29,6 +37,49 @@ def dumplist(args):
 
   for obj in objects:
     output.write('%s\n' % (obj.make_path(directory=args.directory, extension=args.extension),))
+
+  return 0
+
+
+def create_meta(args):
+  """Runs the face detection, heart-rate estimation, save outputs at package"""
+
+
+  from . import Database
+  db = Database()
+
+  objects = db.objects()
+  if args.selftest:
+    objects = objects[:5]
+
+  basedir = pkg_resources.resource_filename(__name__, 'data')
+
+  for obj in objects:
+    try:
+      max_faces = 0
+      if args.selftest: max_faces = 2
+      detections = obj.run_face_detector(args.directory, max_faces)
+      quality = []
+      arr = []
+      for k in sorted(detections.keys()):
+        det = detections[k]
+        quality.append(det['quality'])
+        bb = det['boundingbox']
+        arr.append([k, bb.topleft[1], bb.topleft[0], bb.size[1], bb.size[0]])
+      output = obj.make_path(basedir, '.hdf5')
+      outdir = os.path.dirname(output)
+      if not os.path.exists(outdir): os.makedirs(outdir)
+      h5 = bob.io.base.HDF5File(output, 'w')
+      h5.set('detections', numpy.array(arr))
+      h5.set_attribute('quality', numpy.array(quality))
+      h5.set_attribute('heartrate_bpm',
+              obj.estimate_heartrate_in_bpm(args.directory))
+      h5.close()
+    finally:
+      if args.selftest:
+        if os.path.exists(basedir):
+          import shutil
+          shutil.rmtree(basedir)
 
   return 0
 
@@ -95,7 +146,7 @@ class Interface(BaseInterface):
     # add the dumplist command
     dump_message = "Dumps list of files based on your criteria"
     dump_parser = subparsers.add_parser('dumplist', help=dump_message)
-    dump_parser.add_argument('-d', '--directory', dest="directory", default='', help="if given, this path will be prepended to every entry returned (defaults to '%(default)s')")
+    dump_parser.add_argument('-d', '--directory', dest="directory", default=DATABASE_LOCATION, help="if given, this path will be prepended to every entry returned (defaults to '%(default)s')")
     dump_parser.add_argument('-e', '--extension', dest="extension", default='', help="if given, this extension will be appended to every entry returned (defaults to '%(default)s')")
     dump_parser.add_argument('--self-test', dest="selftest", default=False, action='store_true', help=SUPPRESS)
     dump_parser.set_defaults(func=dumplist) #action
@@ -103,7 +154,14 @@ class Interface(BaseInterface):
     # add the checkfiles command
     check_message = "Check if the files exist, based on your criteria"
     check_parser = subparsers.add_parser('checkfiles', help=check_message)
-    check_parser.add_argument('-d', '--directory', dest="directory", default='', help="if given, this path will be prepended to every entry returned (defaults to '%(default)s')")
+    check_parser.add_argument('-d', '--directory', dest="directory", default=DATABASE_LOCATION, help="if given, this path will be prepended to every entry returned (defaults to '%(default)s')")
     check_parser.add_argument('-e', '--extension', dest="extension", default='', help="if given, this extension will be appended to every entry returned (defaults to '%(default)s')")
     check_parser.add_argument('--self-test', dest="selftest", default=False, action='store_true', help=SUPPRESS)
     check_parser.set_defaults(func=checkfiles) #action
+
+    # add the create_meta command
+    meta_message = create_meta.__doc__
+    meta_parser = subparsers.add_parser('mkmeta', help=create_meta.__doc__)
+    meta_parser.add_argument('-d', '--directory', dest="directory", default=DATABASE_LOCATION, help="This path points to the location where the database raw files are installed (defaults to '%(default)s')")
+    meta_parser.add_argument('--self-test', dest="selftest", default=False, action='store_true', help=SUPPRESS)
+    meta_parser.set_defaults(func=create_meta) #action
