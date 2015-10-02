@@ -77,49 +77,50 @@ def bdf_load_signal(fn, name='EXG3', start=None, end=None):
   """
 
   import edflib
-  e = edflib.EdfReader(fn)
 
-  # get the status information, so we how the video is synchronized
-  status_index = e.getSignalTextLabels().index('Status')
-  sample_frequency = e.samplefrequency(status_index)
-  status_size = e.samples_in_file(status_index)
-  status = numpy.zeros((status_size,), dtype='float64')
-  e.readsignal(status_index, 0, status_size, status)
-  status = status.round().astype('int')
-  nz_status = status.nonzero()[0]
+  with edflib.EdfReader(fn) as e:
 
-  # because we're interested in the video bits, make sure to get data
-  # from that period only
-  video_start = nz_status[0]
-  video_end = nz_status[-1]
+    # get the status information, so we how the video is synchronized
+    status_index = e.getSignalTextLabels().index('Status')
+    sample_frequency = e.samplefrequency(status_index)
+    status_size = e.samples_in_file(status_index)
+    status = numpy.zeros((status_size,), dtype='float64')
+    e.readsignal(status_index, 0, status_size, status)
+    status = status.round().astype('int')
+    nz_status = status.nonzero()[0]
 
-  # retrieve information from this rather chaotic API
-  index = e.getSignalTextLabels().index(name)
-  sample_frequency = e.samplefrequency(index)
+    # because we're interested in the video bits, make sure to get data
+    # from that period only
+    video_start = nz_status[0]
+    video_end = nz_status[-1]
 
-  video_start_seconds = video_start/sample_frequency
+    # retrieve information from this rather chaotic API
+    index = e.getSignalTextLabels().index(name)
+    sample_frequency = e.samplefrequency(index)
 
-  if start is not None:
-    start += video_start_seconds
-    start *= sample_frequency
-    if start < video_start: start = video_start
-    start = int(start)
-  else:
-    start = video_start
+    video_start_seconds = video_start/sample_frequency
 
-  if end is not None:
-    end += video_start_seconds
-    end *= sample_frequency
-    if end > video_end: end = video_end
-    end = int(end)
-  else:
-    end = video_end
+    if start is not None:
+      start += video_start_seconds
+      start *= sample_frequency
+      if start < video_start: start = video_start
+      start = int(start)
+    else:
+      start = video_start
 
-  # now read the data into a numpy array (read everything or libedf crashes)
-  container = numpy.zeros((end-start,), dtype='float64')
-  e.readsignal(index, start, end-start, container)
+    if end is not None:
+      end += video_start_seconds
+      end *= sample_frequency
+      if end > video_end: end = video_end
+      end = int(end)
+    else:
+      end = video_end
 
-  return container, sample_frequency
+    # now read the data into a numpy array (read everything)
+    container = numpy.zeros((end-start,), dtype='float64')
+    e.readsignal(index, start, end-start, container)
+
+    return container, sample_frequency
 
 
 class File(object):
