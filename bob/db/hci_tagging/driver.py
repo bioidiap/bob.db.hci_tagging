@@ -52,9 +52,22 @@ def create_meta(args):
   if args.selftest:
     objects = objects[:5]
 
+  if args.grid_count:
+    print len(objects)
+    sys.exit(0)
+
+  # if we are on a grid environment, just find what I have to process.
+  if os.environ.has_key('SGE_TASK_ID'):
+    pos = int(os.environ['SGE_TASK_ID']) - 1
+    if pos >= len(objects):
+      raise RuntimeError, "Grid request for job %d on a setup with %d jobs" % \
+          (pos, len(objects))
+    objects = [objects[pos]]
+
   basedir = pkg_resources.resource_filename(__name__, 'data')
 
   for obj in objects:
+    print "Creating meta data for `%s'..." % obj.make_path()
     try:
       max_faces = 0
       if args.selftest: max_faces = 2
@@ -163,5 +176,6 @@ class Interface(BaseInterface):
     meta_message = create_meta.__doc__
     meta_parser = subparsers.add_parser('mkmeta', help=create_meta.__doc__)
     meta_parser.add_argument('-d', '--directory', dest="directory", default=DATABASE_LOCATION, help="This path points to the location where the database raw files are installed (defaults to '%(default)s')")
+    meta_parser.add_argument('--grid-count', dest="grid_count", default=False, action='store_true', help=SUPPRESS)
     meta_parser.add_argument('--self-test', dest="selftest", default=False, action='store_true', help=SUPPRESS)
     meta_parser.set_defaults(func=create_meta) #action
