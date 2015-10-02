@@ -177,6 +177,19 @@ class File(object):
             self.stem + (extension or self.default_extension()),
             )
 
+  def load_video(self, directory):
+    """Loads the colored video file associated to this object
+
+    Keyword parameters:
+
+    directory
+      A directory name that will be prefixed to the returned result.
+
+    """
+
+    path = os.path.join(directory, self.basedir, self.video_stem + '.avi')
+    return bob.io.video.reader(path)
+
 
   def save(self, data, directory=None, extension='.hdf5'):
     """Saves the input data at the specified location and using the given

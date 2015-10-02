@@ -62,6 +62,14 @@ class HCITaggingTest(unittest.TestCase):
         print('Physiological signal (%d seconds) is very different in size from estimated video duration (%d seconds) on sample `%s/%s\'' % (time, obj.duration, obj.basedir, obj.stem))
       '''
 
+  @db_available
+  def test02_can_read_camera1_video(self):
+
+    for obj in self.db.objects()[:5]:
+
+      video = obj.load_video(DATABASE_LOCATION)
+      assert video.number_of_frames
+
 
 class CmdLineTest(unittest.TestCase):
   """Makes sure our command-line is working properly."""
