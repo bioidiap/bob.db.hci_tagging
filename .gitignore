@@ -17,3 +17,5 @@ dist
 build
 *.egg
 src/
+logs/
+*.sql3
