@@ -5,6 +5,7 @@
 
 import os
 import logging
+import pkg_resources
 
 import numpy
 import bob.db.base
@@ -221,6 +222,21 @@ class File(object):
     return detections
 
 
+  def load_face_detections(self):
+    """Loads face detections from locally stored files if they exist, fails
+    gracefully otherwise, returning `None`"""
+
+    data_dir = pkg_resources.resource_filename(__name__, 'data')
+    path = self.make_path(data_dir, '.hdf5')
+
+    if os.path.exists(path):
+      f = bob.io.base.HDF5File(path)
+      data = f.get('detections')
+      return dict([(k[0], k[1:]) for k in f.get('detections')])
+
+    return None
+
+
   def estimate_heartrate_in_bpm(self, directory):
     """Estimates the person's heart rate using the ECG sensor data
 
@@ -241,6 +257,20 @@ class File(object):
       avg_hr, peaks = estimate_average_heartrate(signal, freq)
       estimates.append(avg_hr)
     return chooser(estimates)
+
+
+  def load_heart_rate_in_bpm(self):
+    """Loads the heart-rate from locally stored files if they exist, fails
+    gracefully otherwise, returning `None`"""
+
+    data_dir = pkg_resources.resource_filename(__name__, 'data')
+    path = self.make_path(data_dir, '.hdf5')
+
+    if os.path.exists(path):
+      f = bob.io.base.HDF5File(path)
+      return f.get_attribute('heartrate_bpm')
+
+    return None
 
 
   def save(self, data, directory=None, extension='.hdf5'):

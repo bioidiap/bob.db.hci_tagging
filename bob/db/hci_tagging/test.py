@@ -8,8 +8,9 @@
 
 import os, sys
 import unittest
-from . import Database
+import pkg_resources
 
+from . import Database
 from .driver import DATABASE_LOCATION
 
 
@@ -25,6 +26,22 @@ def db_available(test):
       return test(*args, **kwargs)
     else:
       raise SkipTest("Raw database files are not available")
+
+  return wrapper
+
+
+def meta_available(test):
+  """Decorator for detecting if we're running the test on an annotated db"""
+  from nose.plugins.skip import SkipTest
+  import functools
+
+  @functools.wraps(test)
+  def wrapper(*args, **kwargs):
+
+    if os.path.exists(pkg_resources.resource_filename(__name__, 'data')):
+      return test(*args, **kwargs)
+    else:
+      raise SkipTest("Annotation files are not available")
 
   return wrapper
 
@@ -63,13 +80,27 @@ class HCITaggingTest(unittest.TestCase):
         print('Physiological signal (%d seconds) is very different in size from estimated video duration (%d seconds) on sample `%s/%s\'' % (time, obj.duration, obj.basedir, obj.stem))
       '''
 
+
   @db_available
-  def test02_can_read_camera1_video(self):
+  def test03_can_read_camera1_video(self):
 
     for obj in self.db.objects()[:5]:
 
       video = obj.load_video(DATABASE_LOCATION)
       assert video.number_of_frames
+
+
+  @meta_available
+  def test04_can_read_meta(self):
+
+    for obj in self.db.objects()[:5]:
+
+      detections = obj.load_face_detections()
+      assert len(detections)
+
+      hr = obj.load_heart_rate_in_bpm()
+      assert hr
+
 
 
 class CmdLineTest(unittest.TestCase):
@@ -104,7 +135,7 @@ class CmdLineTest(unittest.TestCase):
 
 
   @db_available
-  def test03_can_create_meta(self):
+  def notest03_can_create_meta(self):
 
     from bob.db.base.script.dbmanage import main
 
