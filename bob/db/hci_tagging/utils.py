@@ -84,6 +84,9 @@ def bdf_load_signal(fn, name='EXG3', start=None, end=None):
 
   import edflib
 
+  if not os.path.exists(fn): #or the EdfReader will crash the interpreter
+    raise IOError("file `%s' does not exist" % fn)
+
   with edflib.EdfReader(fn) as e:
 
     # get the status information, so we how the video is synchronized
@@ -240,8 +243,7 @@ def annotate_video(video, annotations, output, thickness=3,
     bb = annotations.get(k)
     if bb is not None:
       for t in range(thickness):
-        bob.ip.draw.box(frame, (bb[1]-t, bb[0]-t),
-                (bb[3]+2*t, bb[2]+2*t), color)
+        bob.ip.draw.box(frame, bb.topleft, bb.size, color)
     writer.append(frame)
   del writer
 

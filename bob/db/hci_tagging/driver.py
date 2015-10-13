@@ -68,7 +68,10 @@ def create_meta(args):
           (pos, len(objects))
     objects = [objects[pos]]
 
-  basedir = pkg_resources.resource_filename(__name__, 'data')
+  if args.selftest:
+    basedir = pkg_resources.resource_filename(__name__, 'test-data')
+  else:
+    basedir = pkg_resources.resource_filename(__name__, 'data')
 
   for obj in objects:
     output = obj.make_path(basedir, '.hdf5')
@@ -77,24 +80,32 @@ def create_meta(args):
       continue
     try:
       print "Creating meta data for `%s'..." % obj.make_path()
-      max_faces = 0
-      if args.selftest: max_faces = 2
-      detections = obj.run_face_detector(args.directory, max_faces)
-      quality = []
-      arr = []
-      for k in sorted(detections.keys()):
-        det = detections[k]
-        quality.append(det['quality'])
-        bb = det['boundingbox']
-        arr.append([k, bb.topleft[1], bb.topleft[0], bb.size[1], bb.size[0]])
-      outdir = os.path.dirname(output)
-      if not os.path.exists(outdir): os.makedirs(outdir)
-      h5 = bob.io.base.HDF5File(output, 'w')
-      h5.set('detections', numpy.array(arr))
-      h5.set_attribute('quality', numpy.array(quality))
-      h5.set_attribute('heartrate_bpm',
-              obj.estimate_heartrate_in_bpm(args.directory))
-      h5.close()
+      bb = obj.run_face_detector(args.directory, max_frames=1)[0]
+      hr = obj.estimate_heartrate_in_bpm(args.directory)
+      if bb and hr:
+        outdir = os.path.dirname(output)
+        if not os.path.exists(outdir): os.makedirs(outdir)
+        h5 = bob.io.base.HDF5File(output, 'w')
+        h5.create_group('face_detector')
+        h5.cd('face_detector')
+        h5.set('topleft_x', bb.topleft.x)
+        h5.set('topleft_y', bb.topleft.y)
+        h5.set('width', bb.size.x)
+        h5.set('height', bb.size.y)
+        h5.set_attribute('quality', bb.quality)
+        h5.cd('..')
+        h5.set('heartrate', hr)
+        h5.set_attribute('units', 'beats-per-minute', 'heartrate')
+        h5.close()
+      else:
+        print "Skipping `%s': Missing Bounding box and/or Heart-rate" % (obj.stem,)
+        print " -> Bounding box: %s" % bb
+        print " -> Heart-rate  : %s" % hr
+
+    except IOError as e:
+      print "Skipping `%s': %s" % (obj.stem, str(e))
+      continue
+
     finally:
       if args.selftest:
         if os.path.exists(basedir):
@@ -135,10 +146,7 @@ def debug(args):
     print "Creating debug data for `%s'..." % obj.make_path()
     try:
 
-      detections = obj.load_face_detections()
-      if detections is None:
-        detections = obj.run_face_detector(args.directory)
-        detections = dict([(k, (v.topleft[1], v.topleft[0], v.size[1], v.size[0])) for k,v in detections.items()])
+      detections = obj.run_face_detector(args.directory)
       # save annotated video file
       output = obj.make_path(args.output_directory, '.avi')
       print "Annotating video `%s'" % output
@@ -147,6 +155,10 @@ def debug(args):
       print "Annotating heart-rate `%s'" % output
       output = obj.make_path(args.output_directory, '.pdf')
       utils.explain_heartrate(obj, args.directory, output)
+
+    except IOError as e:
+      print "Skipping `%s': %s" % (obj.stem, str(e))
+      continue
 
     finally:
       if args.selftest:

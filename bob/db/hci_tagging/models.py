@@ -4,12 +4,18 @@
 # Wed 30 Sep 2015 12:13:47 CEST
 
 import os
+import collections
 import pkg_resources
 
 import bob.io.base
 import bob.ip.facedetect
 
 from . import utils
+
+
+# Some utility definitions
+Point = collections.namedtuple('Point', 'y,x')
+BoundingBox = collections.namedtuple('BoundingBox', 'topleft,size,quality')
 
 
 class File(object):
@@ -81,7 +87,7 @@ class File(object):
 
 
   def run_face_detector(self, directory, max_frames=0):
-    """Runs bob.ip.facedetect stock detector on the whole video.
+    """Runs bob.ip.facedetect stock detector on the selected frames.
 
     Parameters:
 
@@ -96,6 +102,7 @@ class File(object):
 
       dict: A dictionary containing the detected face bounding boxes and
         quality information.
+
     """
 
     detections = {}
@@ -103,12 +110,12 @@ class File(object):
     if max_frames: data = data[:max_frames]
     for k, frame in enumerate(data):
       bb, quality = bob.ip.facedetect.detect_single_face(frame)
-      detections[k] = {'boundingbox': bb, 'quality': quality}
+      detections[k] = BoundingBox(Point(*bb.topleft), Point(*bb.size), quality)
     return detections
 
 
-  def load_face_detections(self):
-    """Loads face detections from locally stored files if they exist, fails
+  def load_face_detection(self):
+    """Loads the face detection from locally stored files if they exist, fails
     gracefully otherwise, returning `None`"""
 
     data_dir = pkg_resources.resource_filename(__name__, 'data')
@@ -116,8 +123,12 @@ class File(object):
 
     if os.path.exists(path):
       f = bob.io.base.HDF5File(path)
-      data = f.get('detections')
-      return dict([(k[0], k[1:]) for k in f.get('detections')])
+      f.cd('face_detector')
+      return BoundingBox(
+              Point(f.get('topleft_y'), f.get('topleft_x')),
+              Point(f.get('height'), f.get('width')),
+              f.get_attribute('quality'),
+              )
 
     return None
 
@@ -153,7 +164,7 @@ class File(object):
 
     if os.path.exists(path):
       f = bob.io.base.HDF5File(path)
-      return f.get_attribute('heartrate_bpm')
+      return f.get('heartrate')
 
     return None
 

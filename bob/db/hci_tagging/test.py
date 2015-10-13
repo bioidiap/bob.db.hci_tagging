@@ -60,9 +60,9 @@ class HCITaggingTest(unittest.TestCase):
   @db_available
   def test02_can_read_bdf(self):
 
-    from .models import bdf_load_signal
+    from .utils import bdf_load_signal
 
-    for obj in self.db.objects()[:10]:
+    for obj in self.db.objects()[:3]:
 
       path = obj.make_path(DATABASE_LOCATION, '.bdf')
       self.assertTrue(os.path.exists(path))
@@ -93,10 +93,10 @@ class HCITaggingTest(unittest.TestCase):
   @meta_available
   def test04_can_read_meta(self):
 
-    for obj in self.db.objects()[:5]:
+    for obj in self.db.objects()[:3]:
 
-      detections = obj.load_face_detections()
-      assert len(detections)
+      detection = obj.load_face_detection()
+      assert detection
 
       hr = obj.load_heart_rate_in_bpm()
       assert hr
