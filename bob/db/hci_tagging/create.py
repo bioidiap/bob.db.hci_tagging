@@ -53,7 +53,7 @@ def create(args):
   from . import LOCATION
 
   if os.path.exists(LOCATION) and not args.recreate:
-    print("CSV descriptor exists at `%s' and --recreate was not set")
+    print("CSV descriptor exists at `%s' and --recreate was not set" % LOCATION)
     return 1
 
   if os.path.exists(LOCATION): os.unlink(LOCATION)
