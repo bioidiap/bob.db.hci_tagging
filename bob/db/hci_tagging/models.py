@@ -169,6 +169,32 @@ class File(object):
     return None
 
 
+  def load_drmf_keypoints(self):
+    """Loads the 66-keypoints coming from the Discriminative Response Map
+    Fitting (DRMF) landmark detector.
+
+    Reference: http://ibug.doc.ic.ac.uk/resources/drmf-matlab-code-cvpr-2013/.
+
+    The code was written for Matlab. Data for the first frame of the colour
+    video of this object was loaded on a compatible Matlab framework and the
+    keypoints extracted taking as basis the currently available face bounding
+    box, enlarged by 7% (so the key-point detector performs reasonably well).
+    The extracted keypoints were then merged into this database access package
+    so they are easy to load from python.
+
+    The points are in the form (y, x), as it is standard on Bob-based packages.
+    """
+
+    data_dir = pkg_resources.resource_filename(__name__, 'data')
+    path = self.make_path(data_dir, '.hdf5')
+
+    if os.path.exists(path):
+      f = bob.io.base.HDF5File(path)
+      return f.get('drmf_landmarks66')
+
+    return None
+
+
   def save(self, data, directory=None, extension='.hdf5'):
     """Saves the input data at the specified location and using the given
     extension.
