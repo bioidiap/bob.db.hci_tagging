@@ -11,7 +11,6 @@ import bob.io.video
 import bob.ip.draw
 import bob.ip.facedetect
 
-import antispoofing.utils.faceloc
 from mne.preprocessing.ecg import qrs_detector
 
 
