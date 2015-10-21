@@ -114,8 +114,8 @@ class File(object):
     return detections
 
 
-  def load_face_detection(self):
-    """Loads the face detection from locally stored files if they exist, fails
+  def load_face_detections(self):
+    """Loads the face detections from locally stored files if they exist, fails
     gracefully otherwise, returning `None`"""
 
     data_dir = pkg_resources.resource_filename(__name__, 'data')
@@ -123,12 +123,9 @@ class File(object):
 
     if os.path.exists(path):
       f = bob.io.base.HDF5File(path)
-      f.cd('face_detector')
-      return BoundingBox(
-              Point(f.get('topleft_y'), f.get('topleft_x')),
-              Point(f.get('height'), f.get('width')),
-              f.get_attribute('quality'),
-              )
+      bb = f.get('face_detector')
+      qu = f.get_attribute('quality', '/face_detector')
+      return [BoundingBox(Point(k[0], k[1]), Point(k[2], k[3]), q) for k,q in zip(bb, qu)]
 
     return None
 
