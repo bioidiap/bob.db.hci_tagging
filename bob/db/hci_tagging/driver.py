@@ -80,15 +80,20 @@ def create_meta(args):
       continue
     try:
       print "Creating meta data for `%s'..." % obj.make_path()
-      bb = obj.run_face_detector(args.directory)
+      bb = obj.run_face_detector(args.directory, max_frames=1)[0]
       hr = obj.estimate_heartrate_in_bpm(args.directory)
       if bb and hr:
         outdir = os.path.dirname(output)
         if not os.path.exists(outdir): os.makedirs(outdir)
         h5 = bob.io.base.HDF5File(output, 'w')
-        bb_save = [(bb[k].topleft.y, bb[k].topleft.x, bb[k].size.y, bb[k].size.x) for k in sorted(bb.keys())]
-        h5.set('face_detector', numpy.array(bb_save))
-        h5.set_attribute('quality', numpy.array([bb[k].quality for k in sorted(bb.keys())]), '/face_detector')
+        h5.create_group('face_detector')
+        h5.cd('face_detector')
+        h5.set('topleft_x', bb.topleft.x)
+        h5.set('topleft_y', bb.topleft.y)
+        h5.set('width', bb.size.x)
+        h5.set('height', bb.size.y)
+        h5.set_attribute('quality', bb.quality)
+        h5.cd('..')
         h5.set('heartrate', hr)
         h5.set_attribute('units', 'beats-per-minute', 'heartrate')
         h5.close()
