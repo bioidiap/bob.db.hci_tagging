@@ -166,6 +166,7 @@ def plot_signal(s, sampling_frequency, channel_name):
     float: The estimated average heart-rate in beats-per-minute
 
   '''
+  import matplotlib.pyplot as plt
 
   avg, peaks = estimate_average_heartrate(s, sampling_frequency)
 

@@ -8,6 +8,7 @@
 
 import os, sys
 import unittest
+import nose.tools
 import pkg_resources
 
 from . import Database
@@ -101,6 +102,27 @@ class HCITaggingTest(unittest.TestCase):
       hr = obj.load_heart_rate_in_bpm()
       assert hr
 
+
+  @nose.tools.nottest
+  @db_available
+  def test05_can_write_meta(self):
+
+    import matplotlib.pyplot as plt
+    from .utils import bdf_load_signal, plot_signal
+
+    for obj in self.db.objects()[:1]:
+      #if obj.stem.find('Part_1_') < 0: continue
+
+      estimates = []
+      for i, channel in enumerate(('EXG1', 'EXG2', 'EXG3')):
+        plt.subplot(3, 1, i+1)
+        signal_file = obj.make_path(DATABASE_LOCATION)
+        signal, freq = bdf_load_signal(signal_file, channel)
+        avg_hr, peaks = plot_signal(signal, freq, channel)
+        estimates.append(avg_hr)
+
+      plt.tight_layout()
+      plt.show()
 
 
 class CmdLineTest(unittest.TestCase):
