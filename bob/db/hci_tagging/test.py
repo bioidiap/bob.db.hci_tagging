@@ -58,6 +58,10 @@ class HCITaggingTest(unittest.TestCase):
     self.assertEqual(len(self.db.objects()), 3490)
 
 
+  def test01b_objects_cvpr14(self):
+    self.assertEqual(len(self.db.objects('cvpr14')), 527)
+
+
   @db_available
   def test02_can_read_bdf(self):
 

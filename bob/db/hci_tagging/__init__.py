@@ -22,11 +22,26 @@ class Database(object):
       self.metadata = [row for row in reader]
 
 
-  def objects(self):
+  def objects(self, protocol=None):
     """Returns a list of unique :py:class:`.File` objects for the specific
     query by the user.
 
-    Returns: A list of :py:class:`.File` objects.
+
+    Parameters:
+
+      protocol (str, optional): If set, can take the value of 'cvpr14',
+        which subselects samples used by Li et al. on their CVPR'14 paper for
+        heart-rate estimation.
+
+
+    Returns: A list of :py:class:`File` objects.
     """
+
+    if protocol in ('cvpr14',):
+      d = resource_filename(__name__, os.path.join('data', 'li_samples_cvpr14.txt'))
+      with open(d, 'rt') as f: sessions = f.read().split()
+      return [File(**k) for k in self.metadata if k['basedir'] in sessions]
+    else:
+      raise RuntimeError('Protocol should be either "cvpr14" or not set. The value %s is not valid' % protocol)
 
     return [File(**k) for k in self.metadata]
