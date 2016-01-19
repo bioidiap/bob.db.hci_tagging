@@ -41,7 +41,28 @@ class Database(object):
       d = resource_filename(__name__, os.path.join('data', 'li_samples_cvpr14.txt'))
       with open(d, 'rt') as f: sessions = f.read().split()
       return [File(**k) for k in self.metadata if k['basedir'] in sessions]
+    
+    elif protocol in ('train',):
+      d = resource_filename(__name__, os.path.join('data', 'train.txt'))
+      with open(d, 'rt') as f: sessions = f.read().split()
+      return [File(**k) for k in self.metadata if k['basedir'] in sessions]
+    
+    elif protocol in ('dev',):
+      d = resource_filename(__name__, os.path.join('data', 'dev.txt'))
+      with open(d, 'rt') as f: sessions = f.read().split()
+      return [File(**k) for k in self.metadata if k['basedir'] in sessions]
+    
+    elif protocol in ('test',):
+      d = resource_filename(__name__, os.path.join('data', 'test.txt'))
+      with open(d, 'rt') as f: sessions = f.read().split()
+      return [File(**k) for k in self.metadata if k['basedir'] in sessions]
+    
+    elif protocol in ('traindev',):
+      d = resource_filename(__name__, os.path.join('data', 'traindev.txt'))
+      with open(d, 'rt') as f: sessions = f.read().split()
+      return [File(**k) for k in self.metadata if k['basedir'] in sessions]
+
     elif protocol is not None:
-      raise RuntimeError('Protocol should be either "cvpr14" or not set. The value %s is not valid' % protocol)
+      raise RuntimeError('Protocol should be either "train", "dev", "traindev", "test", "cvpr14" or not set. The value %s is not valid' % protocol)
 
     return [File(**k) for k in self.metadata]
