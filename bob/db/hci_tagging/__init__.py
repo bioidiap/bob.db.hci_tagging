@@ -50,7 +50,7 @@ class Database(object):
     
     if protocol in ('all'):
 
-      if 'None' in subset:
+      if not subset:
         return [File(**k) for k in self.metadata]
       else:
         files = []
