@@ -19,3 +19,5 @@ build
 src/
 logs/
 *.sql3
+bob/db/hci_tagging/data/
+bob/db/hci_tagging/protocols/

@@ -4,30 +4,28 @@
 # Wed 30 Sep 2015 12:13:47 CEST
 
 import os
-import collections
 import pkg_resources
 
+import bob.db.base
 import bob.io.base
 import bob.ip.facedetect
 
 from . import utils
 
 
-# Some utility definitions
-Point = collections.namedtuple('Point', 'y,x')
-BoundingBox = collections.namedtuple('BoundingBox', 'topleft,size,quality')
-
-
-class File(object):
+class File(bob.db.base.File):
   """ Generic file container for HCI-Tagging files
 
 
   Parameters:
 
-    basedir (path): The base directory for the data
+    basedir (str): The base directory for the data
+
     bdf (str): The name of the BDF file that accompanies the video file,
       containing the physiological signals.
+
     video (str): The name of the video file to be used
+
     duration (int): The time in seconds that corresponds to the estimated
       duration of the data (video and physiological signals).
 
@@ -37,6 +35,7 @@ class File(object):
 
     self.basedir = basedir
     self.stem = bdf
+    self.path = os.path.join(self.basedir, self.stem)
     self.video_stem = video
     self.duration = int(duration)
 
@@ -72,13 +71,40 @@ class File(object):
             self.stem + (extension or self.default_extension()),
             )
 
+
+  def load(self, directory=None, extension='.avi'):
+    """Loads the video for this file entry
+
+
+    Parameters:
+
+      directory (str): The path to the root of the database installation.  This
+        is the path leading to the directory ``Sessions`` of the database.
+
+
+    Returns:
+
+      numpy.ndarray: A 4D array of 8-bit unsigned integers corresponding to the
+      input video for this file in (frame,channel,y,x) notation (Bob-style).
+
+    """
+
+    path = os.path.join(directory, self.basedir, self.video_stem + '.avi')
+    return bob.io.base.load(path)
+
+
   def load_video(self, directory):
     """Loads the colored video file associated to this object
 
-    Keyword parameters:
+    Parameters:
 
-    directory
-      A directory name that will be prefixed to the returned result.
+      directory (str): A directory name that will be prefixed to the returned
+        result.
+
+
+    Returns
+
+      bob.io.video.reader: Preloaded and ready to be iterated by your code.
 
     """
 
@@ -89,19 +115,29 @@ class File(object):
   def run_face_detector(self, directory, max_frames=0):
     """Runs bob.ip.facedetect stock detector on the selected frames.
 
+    .. warning::
+
+       This method is deprecated and serves only as a development basis to
+       clean-up the :py:meth:`load_face_detection`, which for now relies on
+       HDF5 files shipped with this package. Technically, the output of this
+       method and the detected faces shipped should be the same as of today,
+       13 december 2016.
+
+
     Parameters:
 
-      directory
-        A directory name that leads to the location the database is installed
-        on the local disk
+      directory (str): A directory name that leads to the location the database
+        is installed on the local disk
 
       max_frames (int): If set, delimits the maximum number of frames to treat
-        from the associated video file.
+        from the associated video file. A value of zero (default), makes the
+        detector run for all frames.
+
 
     Returns:
 
-      dict: A dictionary containing the detected face bounding boxes and
-        quality information.
+      dict: A dictionary where the key is the frame number and the values are
+      instances of :py:class:`bob.ip.facedetect.BoundingBox`.
 
     """
 
@@ -110,13 +146,26 @@ class File(object):
     if max_frames: data = data[:max_frames]
     for k, frame in enumerate(data):
       bb, quality = bob.ip.facedetect.detect_single_face(frame)
-      detections[k] = BoundingBox(Point(*bb.topleft), Point(*bb.size), quality)
+      detections[k] = bb
     return detections
 
 
   def load_face_detection(self):
-    """Loads the face detection from locally stored files if they exist, fails
-    gracefully otherwise, returning `None`"""
+    """Load bounding boxes for this file
+
+    This function loads bounding boxes for each frame of a video sequence.
+    Bounding boxes are loaded from the package directory and are the ones
+    provided with it. Bounding boxes generated from
+    :py:meth:`run_face_detector` (which should be exactly the same) are not
+    used by this method.
+
+
+    Returns:
+
+      dict: A dictionary where the key is the frame number and the values are
+      instances of :py:class:`bob.ip.facedetect.BoundingBox`.
+
+    """
 
     data_dir = pkg_resources.resource_filename(__name__, 'data')
     path = self.make_path(data_dir, '.hdf5')
@@ -124,11 +173,14 @@ class File(object):
     if os.path.exists(path):
       f = bob.io.base.HDF5File(path)
       f.cd('face_detector')
-      return BoundingBox(
-              Point(f.get('topleft_y'), f.get('topleft_x')),
-              Point(f.get('height'), f.get('width')),
-              f.get_attribute('quality'),
-              )
+
+      detections = {}
+      for k,(y,x,h,w) in enumerate(zip(f.get('topleft_y'), f.get('topleft_x'),
+          f.get('height'), f.get('width'))):
+        detections[k] = bob.ip.facedetect.BoundingBox(topleft=(y,x),
+            size=(h,w))
+
+      return detections
 
     return None
 
@@ -136,11 +188,10 @@ class File(object):
   def estimate_heartrate_in_bpm(self, directory):
     """Estimates the person's heart rate using the ECG sensor data
 
-    Keyword parameters:
+    Parameters:
 
-      directory
-        A directory name that leads to the location the database is installed
-        on the local disk
+      directory (str): A directory name that leads to the location the database
+        is installed on the local disk
 
     """
 
