@@ -263,7 +263,7 @@ def download(arguments):
     import urllib.request as urllib
 
   try:
-    print ("Extracting url `%s'" %(source_url,))
+    print ("Extracting url `%s' (this may be long)..." %(source_url,))
     u = urllib.urlopen(source_url)
     f = tempfile.NamedTemporaryFile(suffix = ".tar.bz2")
     open(f.name, 'wb').write(u.read())
