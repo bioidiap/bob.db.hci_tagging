@@ -5,8 +5,8 @@
    :target: http://pythonhosted.org/bob.db.hci_tagging/index.html
 .. image:: http://img.shields.io/badge/docs-latest-orange.png
    :target: https://www.idiap.ch/software/bob/docs/latest/bob/bob.db.hci_tagging/master/index.html
-.. image:: https://gitlab.idiap.ch/bob/bob.db.hci_tagging/badges/master/build.svg
-   :target: https://gitlab.idiap.ch/bob/bob.db.hci_tagging/commits/master
+.. image:: https://gitlab.idiap.ch/bob/bob.db.hci_tagging/badges/v1.0.0/build.svg
+   :target: https://gitlab.idiap.ch/bob/bob.db.hci_tagging/commits/v1.0.0
 .. image:: https://img.shields.io/badge/gitlab-project-0000c0.svg
    :target: https://gitlab.idiap.ch/bob/bob.db.hci_tagging
 .. image:: http://img.shields.io/pypi/v/bob.db.hci_tagging.png
