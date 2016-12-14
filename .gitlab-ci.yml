@@ -98,7 +98,7 @@ stages:
     - branches
   before_script:
     - ./_ci/install.sh _ci #updates
-    - ./_ci/before_deploy.sh
+    - ./_ci/before_deploy.sh hci_tagging
   script:
     - ./_ci/deploy.sh
   after_script:
