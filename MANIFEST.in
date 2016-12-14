@@ -1,2 +1,2 @@
 include README.rst bootstrap-buildout.py buildout.cfg develop.cfg LICENSE version.txt requirements.txt
-recursive-include bob/db/hci_tagging *.csv *.txt *.hdf5
+recursive-include bob/db/hci_tagging *.csv *.txt *.hdf5 *.face

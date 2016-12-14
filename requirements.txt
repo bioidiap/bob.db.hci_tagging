@@ -1,6 +1,9 @@
 setuptools
+bob.extension
 bob.db.base
 bob.io.video
-python-edf
+bob.ip.draw
 bob.ip.facedetect
+matplotlib
+pyedflib
 mne

@@ -46,8 +46,10 @@ class Database(object):
 
     """
 
+    proto_basedir = os.path.join('data', 'protocols')
+
     if protocol in ('cvpr14',):
-      d = resource_filename(__name__, os.path.join('protocols/cvpr14', 'li_samples_cvpr14.txt'))
+      d = resource_filename(__name__, os.path.join(proto_basedir, 'cvpr14', 'li_samples_cvpr14.txt'))
       with open(d, 'rt') as f: sessions = f.read().split()
       return [File(**k) for k in self.metadata if k['basedir'] in sessions]
 
@@ -58,15 +60,15 @@ class Database(object):
       else:
         files = []
         if 'train' in subset:
-          d = resource_filename(__name__, os.path.join('protocols/all', 'train.txt'))
+          d = resource_filename(__name__, os.path.join(proto_basedir, 'all', 'train.txt'))
           with open(d, 'rt') as f: sessions = f.read().split()
           files += [File(**k) for k in self.metadata if k['basedir'] in sessions]
         if 'dev' in subset:
-          d = resource_filename(__name__, os.path.join('protocols/all', 'dev.txt'))
+          d = resource_filename(__name__, os.path.join(proto_basedir, 'all', 'dev.txt'))
           with open(d, 'rt') as f: sessions = f.read().split()
           files += [File(**k) for k in self.metadata if k['basedir'] in sessions]
         if 'test' in subset:
-          d = resource_filename(__name__, os.path.join('protocols/all', 'test.txt'))
+          d = resource_filename(__name__, os.path.join(proto_basedir, 'all', 'test.txt'))
           with open(d, 'rt') as f: sessions = f.read().split()
           files += [File(**k) for k in self.metadata if k['basedir'] in sessions]
 

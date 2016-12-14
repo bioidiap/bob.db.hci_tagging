@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
 
-from setuptools import setup, find_packages
+from setuptools import setup, dist
 dist.Distribution(dict(setup_requires=['bob.extension']))
 
 from bob.extension.utils import load_requirements, find_packages

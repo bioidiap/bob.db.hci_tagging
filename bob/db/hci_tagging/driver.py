@@ -46,6 +46,12 @@ def dumplist(args):
 def create_meta(args):
   """Runs the face detection, heart-rate estimation, save outputs at package"""
 
+  if not args.force:
+    raise RuntimeError("This method will re-write the internal HDF5 files, " \
+        "which contain vital metadata used for generating results." \
+        " Make sure this is what you want to do reading the API for this " \
+        "package first (special attention to the method " \
+        ":py:meth:`File.run_face_detector`).")
 
   from . import Database
   db = Database()
@@ -57,15 +63,15 @@ def create_meta(args):
     objects = objects[:args.limit]
 
   if args.grid_count:
-    print len(objects)
+    print(len(objects))
     sys.exit(0)
 
   # if we are on a grid environment, just find what I have to process.
   if os.environ.has_key('SGE_TASK_ID'):
     pos = int(os.environ['SGE_TASK_ID']) - 1
     if pos >= len(objects):
-      raise RuntimeError, "Grid request for job %d on a setup with %d jobs" % \
-          (pos, len(objects))
+      raise RuntimeError("Grid request for job %d on a setup with %d jobs" % \
+          (pos, len(objects)))
     objects = [objects[pos]]
 
   if args.selftest:
@@ -76,10 +82,10 @@ def create_meta(args):
   for obj in objects:
     output = obj.make_path(basedir, '.hdf5')
     if os.path.exists(output) and not args.force:
-      print "Skipping `%s' (meta file exists)" % obj.make_path()
+      print("Skipping `%s' (meta file exists)" % obj.make_path())
       continue
     try:
-      print "Creating meta data for `%s'..." % obj.make_path()
+      print("Creating meta data for `%s'..." % obj.make_path())
       bb = obj.run_face_detector(args.directory, max_frames=1)[0]
       hr = obj.estimate_heartrate_in_bpm(args.directory)
       if bb and hr:
@@ -97,12 +103,12 @@ def create_meta(args):
         h5.set_attribute('units', 'beats-per-minute', 'heartrate')
         h5.close()
       else:
-        print "Skipping `%s': Missing Bounding box and/or Heart-rate" % (obj.stem,)
-        print " -> Bounding box: %s" % bb
-        print " -> Heart-rate  : %s" % hr
+        print("Skipping `%s': Missing Bounding box and/or Heart-rate" % (obj.stem,))
+        print(" -> Bounding box: %s" % bb)
+        print(" -> Heart-rate  : %s" % hr)
 
     except IOError as e:
-      print "Skipping `%s': %s" % (obj.stem, str(e))
+      print("Skipping `%s': %s" % (obj.stem, str(e)))
       continue
 
     finally:
@@ -128,35 +134,35 @@ def debug(args):
     objects = objects[:args.limit]
 
   if args.grid_count:
-    print len(objects)
+    print(len(objects))
     sys.exit(0)
 
   # if we are on a grid environment, just find what I have to process.
   if os.environ.has_key('SGE_TASK_ID'):
     pos = int(os.environ['SGE_TASK_ID']) - 1
     if pos >= len(objects):
-      raise RuntimeError, "Grid request for job %d on a setup with %d jobs" % \
-          (pos, len(objects))
+      raise RuntimeError("Grid request for job %d on a setup with %d jobs" % \
+          (pos, len(objects)))
     objects = [objects[pos]]
 
   basedir = 'debug'
 
   for obj in objects:
-    print "Creating debug data for `%s'..." % obj.make_path()
+    print("Creating debug data for `%s'..." % obj.make_path())
     try:
 
       detections = obj.run_face_detector(args.directory)
       # save annotated video file
       output = obj.make_path(args.output_directory, '.avi')
-      print "Annotating video `%s'" % output
+      print("Annotating video `%s'" % output)
       utils.annotate_video(obj.load_video(args.directory), detections, output)
 
-      print "Annotating heart-rate `%s'" % output
+      print("Annotating heart-rate `%s'" % output)
       output = obj.make_path(args.output_directory, '.pdf')
       utils.explain_heartrate(obj, args.directory, output)
 
     except IOError as e:
-      print "Skipping `%s': %s" % (obj.stem, str(e))
+      print("Skipping `%s': %s" % (obj.stem, str(e)))
       continue
 
     finally:
@@ -222,7 +228,9 @@ def upload(arguments):
   # compress
   import tarfile
   f = tarfile.open(target_file, 'w:bz2')
-  for n,p in zip(names, paths): f.add(p, n)
+  for k,(n,p) in enumerate(zip(names, paths)):
+    print("+ [%d/%d] %s" % (k+1, len(names), n))
+    f.add(p, n)
   f.close()
 
   # set permissions for sane Idiap storage

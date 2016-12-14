@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
-# Andre Anjos <andre.anjos@idiap.ch>
-# Wed 30 Sep 2015 12:13:47 CEST
 
 import os
 import pkg_resources
@@ -90,6 +88,10 @@ class File(bob.db.base.File):
     """
 
     path = os.path.join(directory, self.basedir, self.video_stem + '.avi')
+
+    if not os.path.exists(path):
+      raise IOError("Video file `%s' is not available - have you downloaded the database raw files from the original site?" % (path,))
+
     return bob.io.base.load(path)
 
 
@@ -109,6 +111,10 @@ class File(bob.db.base.File):
     """
 
     path = os.path.join(directory, self.basedir, self.video_stem + '.avi')
+
+    if not os.path.exists(path):
+      raise IOError("Video file `%s' is not available - have you downloaded the database raw files from the original site?" % (path,))
+
     return bob.io.video.reader(path)
 
 
@@ -119,9 +125,9 @@ class File(bob.db.base.File):
 
        This method is deprecated and serves only as a development basis to
        clean-up the :py:meth:`load_face_detection`, which for now relies on
-       HDF5 files shipped with this package. Technically, the output of this
-       method and the detected faces shipped should be the same as of today,
-       13 december 2016.
+       ``.face`` files shipped with this package. Technically, the output of
+       this method and the detected faces shipped should be the same as of
+       today, 13 december 2016.
 
 
     Parameters:
@@ -167,22 +173,22 @@ class File(bob.db.base.File):
 
     """
 
-    data_dir = pkg_resources.resource_filename(__name__, 'data')
-    path = self.make_path(data_dir, '.hdf5')
+    basedir = os.path.join('data', 'bbox')
+    data_dir = pkg_resources.resource_filename(__name__, basedir)
+    path = self.make_path(data_dir, '.face')
 
-    if os.path.exists(path):
-      f = bob.io.base.HDF5File(path)
-      f.cd('face_detector')
+    if not os.path.exists(path):
+      raise IOError("Face bounding-box file `%s' is not available - have you ran the metadata generation step or `./bin/bob_dbmanage.py hci_tagging download'?" % (path,))
 
-      detections = {}
-      for k,(y,x,h,w) in enumerate(zip(f.get('topleft_y'), f.get('topleft_x'),
-          f.get('height'), f.get('width'))):
-        detections[k] = bob.ip.facedetect.BoundingBox(topleft=(y,x),
-            size=(h,w))
-
-      return detections
-
-    return None
+    retval = {}
+    with open(path, 'rt') as f:
+      for row in f:
+        if not row.strip(): continue
+        p = row.split()
+        # .face file: <frame> <x> <y> <width> <height>
+        # BoundingBox ctor: top left (y, x), size (height, width)
+        retval[int(p[0])] = bob.ip.facedetect.BoundingBox((float(p[2]), float(p[1])), (float(p[4]), float(p[3])))
+    return retval
 
 
   def estimate_heartrate_in_bpm(self, directory):
@@ -207,22 +213,21 @@ class File(bob.db.base.File):
 
 
   def load_heart_rate_in_bpm(self):
-    """Loads the heart-rate from locally stored files if they exist, fails
-    gracefully otherwise, returning `None`"""
+    """Loads heart-rate from locally stored files, raises if it isn't there"""
 
     data_dir = pkg_resources.resource_filename(__name__, 'data')
     path = self.make_path(data_dir, '.hdf5')
 
-    if os.path.exists(path):
-      f = bob.io.base.HDF5File(path)
-      return f.get('heartrate')
+    if not os.path.exists(path):
+      raise IOError("Metadata file `%s' is not available - have you ran the metadata generation step or `./bin/bob_dbmanage.py hci_tagging download'?" % (path,))
 
-    return None
+    f = bob.io.base.HDF5File(path)
+    return f.get('heartrate')
 
 
   def load_drmf_keypoints(self):
     """Loads the 66-keypoints coming from the Discriminative Response Map
-    Fitting (DRMF) landmark detector.
+    Fitting (DRMF) landmark detector. Raises if metadata file isn't there.
 
     Reference: http://ibug.doc.ic.ac.uk/resources/drmf-matlab-code-cvpr-2013/.
 
@@ -239,11 +244,11 @@ class File(bob.db.base.File):
     data_dir = pkg_resources.resource_filename(__name__, 'data')
     path = self.make_path(data_dir, '.hdf5')
 
-    if os.path.exists(path):
-      f = bob.io.base.HDF5File(path)
-      return f.get('drmf_landmarks66')
+    if not os.path.exists(path):
+      raise IOError("Metadata file `%s' is not available - have you ran the metadata generation step or `./bin/bob_dbmanage.py hci_tagging download'?" % (path,))
 
-    return None
+    f = bob.io.base.HDF5File(path)
+    return f.get('drmf_landmarks66')
 
 
   def save(self, data, directory=None, extension='.hdf5'):
