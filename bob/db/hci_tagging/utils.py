@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # encoding: utf-8
-# Andre Anjos <andre.anjos@idiap.ch>
-# Thu  1 Oct 11:00:44 CEST 2015
 
 '''Utilities for Remote Photo-Plethysmography Benchmarking'''
 
@@ -81,15 +79,15 @@ def bdf_load_signal(fn, name='EXG3', start=None, end=None):
 
   """
 
-  import edflib
+  import pyedflib
 
   if not os.path.exists(fn): #or the EdfReader will crash the interpreter
     raise IOError("file `%s' does not exist" % fn)
 
-  with edflib.EdfReader(fn) as e:
+  with pyedflib.EdfReader(fn) as e:
 
     # get the status information, so we how the video is synchronized
-    status_index = e.getSignalTextLabels().index('Status')
+    status_index = e.getSignalLabels().index('Status')
     sample_frequency = e.samplefrequency(status_index)
     status_size = e.samples_in_file(status_index)
     status = numpy.zeros((status_size,), dtype='float64')
@@ -103,7 +101,7 @@ def bdf_load_signal(fn, name='EXG3', start=None, end=None):
     video_end = nz_status[-1]
 
     # retrieve information from this rather chaotic API
-    index = e.getSignalTextLabels().index(name)
+    index = e.getSignalLabels().index(name)
     sample_frequency = e.samplefrequency(index)
 
     video_start_seconds = video_start/sample_frequency

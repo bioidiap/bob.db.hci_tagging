@@ -1,93 +1,49 @@
 .. vim: set fileencoding=utf-8 :
-.. Andre Anjos <andre.anjos@idiap.ch>
-.. Wed 30 Sep 2015 11:03:49 CEST
+.. Tue 13 Dec 18:31:43 CET 2016
 
-===============================================
- Mahnob HCI-Tagging Database Interface for Bob
-===============================================
+.. image:: http://img.shields.io/badge/docs-stable-yellow.png
+   :target: http://pythonhosted.org/bob.db.hci_tagging/index.html
+.. image:: http://img.shields.io/badge/docs-latest-orange.png
+   :target: https://www.idiap.ch/software/bob/docs/latest/bob/bob.db.hci_tagging/master/index.html
+.. image:: https://gitlab.idiap.ch/bob/bob.db.hci_tagging/badges/master/build.svg
+   :target: https://gitlab.idiap.ch/bob/bob.db.hci_tagging/commits/master
+.. image:: https://img.shields.io/badge/gitlab-project-0000c0.svg
+   :target: https://gitlab.idiap.ch/bob/bob.db.hci_tagging
+.. image:: http://img.shields.io/pypi/v/bob.db.hci_tagging.png
+   :target: https://pypi.python.org/pypi/bob.db.hci_tagging
+.. image:: http://img.shields.io/pypi/dm/bob.db.hci_tagging.png
+   :target: https://pypi.python.org/pypi/bob.db.hci_tagging
 
-This package contains an interface for the `Mahnob HCI-Tagging dataset`_
-interface. It is presently used to benchmark and test Remote
-Photo-Plethysmography algorithms at Idiap. This package only uses the colored
-videos (from Camera 1, in AVI format) and the biological signals saved in BDF_
-format.
 
-If you decide to use this package, please consider citing `Bob`_, as a software
-development environment and the authors of the dataset::
+================================================
+ Mahnob HCI-Tagging Database Access API for Bob
+================================================
 
-  @article{soleymani-2012,
-    author={Soleymani, M. and Lichtenauer, J. and Pun, T. and Pantic, M.},
-    journal={Affective Computing, IEEE Transactions on},
-    title={A Multimodal Database for Affect Recognition and Implicit Tagging},
-    year={2012},
-    volume={3},
-    number={1},
-    pages={42-55},
-    doi={10.1109/T-AFFC.2011.25},
-    month=Jan,
-    }
+This package is part of the signal-processing and machine learning toolbox
+Bob_. It contains an interface for the evaluation protocols of the `Mahnob
+HCI-Tagging Dataset`_. Notice this package does not contain the raw data files
+from this dataset, which need to be obtained through the link above.
 
 
 Installation
 ------------
 
-To install this package -- alone or together with other `Packages of Bob
-<https://github.com/idiap/bob/wiki/Packages>`_ -- please read the `Installation
-Instructions <https://github.com/idiap/bob/wiki/Installation>`_.  For Bob_ to
-be able to work properly, some dependent packages are required to be installed.
-Please make sure that you have read the `Dependencies
-<https://github.com/idiap/bob/wiki/Dependencies>`_ for your operating system.
+Follow our `installation`_ instructions. Then, using the Python interpreter
+provided by the distribution, bootstrap and buildout this package::
+
+  $ python bootstrap-buildout.py
+  $ ./bin/buildout
 
 
-Dependencies
-============
+Contact
+-------
 
-This package makes use of the following important external dependencies:
-
-  * bob.ip.facedetect_: For automatically detecting faces using a boosted
-    classifier based on LBPs
-  * mne_: For estimating the heart-rate in beats-per-minute using the
-    Pam-Tompkins algorithm
-  * Python-EDF_ tools: to read physiological sensor information out of BDF
-    files
+For questions or reporting issues to this software package, contact our
+development `mailing list`_.
 
 
-Usage
------
-
-You can read videos and sensor information out of the database using the
-provided API.
-
-
-Annotations
-===========
-
-This package can, optionally, *automatically* annotate the following key
-aspects of the Mahnob HCI-Tagging dataset:
-
-  * Average heart-rate in beats-per-minute (BPM), using the Pam-Tompkins
-    algorithm as implemented by `mne`_.
-  * Face bounding boxes, as detected by the default detector on
-    `bob.ip.facedetect`_.
-
-
-The annotation procedure can be launched with the following command::
-
-  $ ./bin/bob_dbmanage.py hci_tagging mkmeta
-
-
-Each video, which is composed of a significant number of frames (hundreds),
-takes about 5 minutes to get completely processed. If are at Idiap, you can
-launch the job on the SGE queue using the following command-line::
-
-  $ ./bin/jman sub -q q1d --io-big -t 3490 `pwd`/bin/bob_dbmanage.py hci_tagging mkmeta
-
-
-.. Your references go here
-
+.. Place your references here:
 .. _bob: https://www.idiap.ch/software/bob
+.. _installation: https://www.idiap.ch/software/bob/install
+.. _mailing list: https://www.idiap.ch/software/bob/discuss
 .. _mahnob hci-tagging dataset: http://mahnob-db.eu/hci-tagging/
-.. _bdf: http://www.biosemi.com/faq/file_format.htm
-.. _bob.ip.facedetect: https://pypi.python.org/pypi/bob.ip.facedetect
-.. _mne: https://pypi.python.org/pypi/mne
-.. _python-edf: https://bitbucket.org/cleemesser/python-edf/

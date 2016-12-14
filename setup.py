@@ -1,46 +1,36 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
-# Andre Anjos <andre.anjos@idiap.ch>
-# Mon 13 Aug 2012 09:49:00 CEST
 
-from setuptools import setup, find_packages
+from setuptools import setup, dist
+dist.Distribution(dict(setup_requires=['bob.extension']))
 
-# Define package version
-version = open("version.txt").read().rstrip()
+from bob.extension.utils import load_requirements, find_packages
+install_requires = load_requirements()
 
 setup(
+
     name='bob.db.hci_tagging',
-    version=version,
-    description="Bob Database interface for the Mahnob HCI-Tagging database",
+    version=open("version.txt").read().rstrip(),
+    description='Mahnob HCI-Tagging Database Access API for Bob',
     keywords=['bob', 'database', 'manhob', 'hci-tagging'],
-    url='http://gitlab.idiap.ch/biometric/bob.db.hci_tagging',
+    url='https://gitlab.idiap.ch/bob/bob.db.cohface',
     license='BSD',
     author='Andre Anjos',
     author_email='andre.anjos@idiap.ch',
 
     long_description=open('README.rst').read(),
 
-    # This line is required for any distutils based packaging.
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
 
-
+    install_requires=install_requires,
 
     entry_points = {
         'bob.db': [
             'hci_tagging = bob.db.hci_tagging.driver:Interface',
             ],
       },
-
-    install_requires=[
-      'setuptools',
-      'bob.db.base',
-      'bob.io.video',
-      'python-edf',
-      'bob.ip.facedetect',
-      'mne',
-      ],
 
     classifiers=[
       'Framework :: Bob',
