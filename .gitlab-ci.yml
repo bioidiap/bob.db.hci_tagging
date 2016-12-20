@@ -28,7 +28,7 @@ stages:
     - ./_ci/install.sh _ci #updates
     - ./_ci/before_build.sh
   script:
-    - ./_ci/build.sh hci_tagging
+    - ./_ci/build.sh
   after_script:
     - ./_ci/after_build.sh
   artifacts:
