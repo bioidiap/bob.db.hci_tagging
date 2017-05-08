@@ -65,14 +65,14 @@ aspects of the Mahnob HCI-Tagging dataset:
 
 The annotation procedure can be launched with the following command::
 
-  $ ./bin/bob_dbmanage.py hci_tagging mkmeta
+  $ bob_dbmanage.py hci_tagging mkmeta
 
 
 Each video, which is composed of a significant number of frames (hundreds),
 takes about 5 minutes to get completely processed. If are at Idiap, you can
 launch the job on the SGE queue using the following command-line::
 
-  $ ./bin/jman sub -q q1d --io-big -t 3490 `pwd`/bin/bob_dbmanage.py hci_tagging mkmeta
+  $ jman sub -q q1d --io-big -t 3490 `pwd`bob_dbmanage.py hci_tagging mkmeta
 
 
 
