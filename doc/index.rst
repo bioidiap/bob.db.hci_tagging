@@ -72,7 +72,7 @@ Each video, which is composed of a significant number of frames (hundreds),
 takes about 5 minutes to get completely processed. If are at Idiap, you can
 launch the job on the SGE queue using the following command-line::
 
-  $ jman sub -q q1d --io-big -t 3490 `pwd`bob_dbmanage.py hci_tagging mkmeta
+  $ jman sub -q q1d --io-big -t 3490 `which bob_dbmanage.py` hci_tagging mkmeta
 
 
 
