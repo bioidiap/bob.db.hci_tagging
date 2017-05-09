@@ -178,7 +178,7 @@ class File(bob.db.base.File):
     path = self.make_path(data_dir, '.face')
 
     if not os.path.exists(path):
-      raise IOError("Face bounding-box file `%s' is not available - have you run the metadata generation step or `./bin/bob_dbmanage.py hci_tagging download'?" % (path,))
+      raise IOError("Face bounding-box file `%s' is not available - have you run the metadata generation step or `bob_dbmanage.py hci_tagging download'?" % (path,))
 
     retval = {}
     with open(path, 'rt') as f:
@@ -219,7 +219,7 @@ class File(bob.db.base.File):
     path = self.make_path(data_dir, '.hdf5')
 
     if not os.path.exists(path):
-      raise IOError("Metadata file `%s' is not available - have you run the metadata generation step or `./bin/bob_dbmanage.py hci_tagging download'?" % (path,))
+      raise IOError("Metadata file `%s' is not available - have you run the metadata generation step or `bob_dbmanage.py hci_tagging download'?" % (path,))
 
     f = bob.io.base.HDF5File(path)
     return f.get('heartrate')
@@ -245,7 +245,7 @@ class File(bob.db.base.File):
     path = self.make_path(data_dir, '.hdf5')
 
     if not os.path.exists(path):
-      raise IOError("Metadata file `%s' is not available - have you run the metadata generation step or `./bin/bob_dbmanage.py hci_tagging download'?" % (path,))
+      raise IOError("Metadata file `%s' is not available - have you run the metadata generation step or `bob_dbmanage.py hci_tagging download'?" % (path,))
 
     f = bob.io.base.HDF5File(path)
     return f.get('drmf_landmarks66')
