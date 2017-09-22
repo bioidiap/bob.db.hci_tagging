@@ -1,14 +1,14 @@
 .. vim: set fileencoding=utf-8 :
 .. Tue 13 Dec 18:31:43 CET 2016
 
-.. image:: http://img.shields.io/badge/docs-v1.0.4-yellow.svg
-   :target: https://www.idiap.ch/software/bob/docs/bob/bob.db.hci_tagging/v1.0.4/index.html
+.. image:: http://img.shields.io/badge/docs-stable-yellow.svg
+   :target: https://www.idiap.ch/software/bob/docs/bob/bob.db.hci_tagging/stable/index.html
 .. image:: http://img.shields.io/badge/docs-latest-orange.svg
    :target: https://www.idiap.ch/software/bob/docs/bob/bob.db.hci_tagging/master/index.html
-.. image:: https://gitlab.idiap.ch/bob/bob.db.hci_tagging/badges/v1.0.4/build.svg
-   :target: https://gitlab.idiap.ch/bob/bob.db.hci_tagging/commits/v1.0.4
-.. image:: https://gitlab.idiap.ch/bob/bob.db.hci_tagging/badges/v1.0.4/coverage.svg
-   :target: https://gitlab.idiap.ch/bob/bob.db.hci_tagging/commits/v1.0.4
+.. image:: https://gitlab.idiap.ch/bob/bob.db.hci_tagging/badges/master/build.svg
+   :target: https://gitlab.idiap.ch/bob/bob.db.hci_tagging/commits/master
+.. image:: https://gitlab.idiap.ch/bob/bob.db.hci_tagging/badges/master/coverage.svg
+   :target: https://gitlab.idiap.ch/bob/bob.db.hci_tagging/commits/master
 .. image:: https://img.shields.io/badge/gitlab-project-0000c0.svg
    :target: https://gitlab.idiap.ch/bob/bob.db.hci_tagging
 .. image:: http://img.shields.io/pypi/v/bob.db.hci_tagging.svg
