@@ -1,5 +1,6 @@
 .. vim: set fileencoding=utf-8 :
 
+.. _bob.db.hci_tagging:
 =============================
  Manhob HCI-Tagging Database
 =============================
